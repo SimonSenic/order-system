@@ -1,0 +1,16 @@
+package com.example.demo.mapper;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
+
+import com.example.demo.dto.UserDTO;
+import com.example.demo.model.User;
+
+@Mapper
+public interface UserMapper {
+	UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
+	
+	@Mapping(source = "name", target = "namef")
+	UserDTO convert(User user);
+}

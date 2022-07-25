@@ -1,0 +1,28 @@
+package com.example.demo.mapper;
+
+import java.util.List;
+
+import com.example.demo.dto.UserDTO;
+import com.example.demo.model.User;
+
+public class Trying implements UserMapper{
+
+	@Override
+	public UserDTO toDTO(User user) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public User toUser(UserDTO userDTO) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<UserDTO> toDTOs(List<User> users) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

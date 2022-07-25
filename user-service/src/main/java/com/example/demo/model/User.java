@@ -9,15 +9,22 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "users")
-@Data
+@RequiredArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Long id;
 	
 	@Column(name = "name")
 	private String name;
@@ -26,11 +33,13 @@ public class User {
 	private String password;
 	
 	@Column(name = "email")
+	@NonNull
 	private String email;
 	
-	@Column(name = "fullName")
-	private String fullName;
+	@Column(name = "address")
+	private String address;
 	
+	@Column(name = "role")
 	@Enumerated(EnumType.STRING)
 	private Role role;
 }
