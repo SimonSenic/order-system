@@ -53,13 +53,6 @@
         	<artifactId>mapstruct</artifactId>
         	<version>${org.mapstruct.version}</version>
     	</dependency>
-    	<dependency>
-    	    <groupId>org.mapstruct</groupId>
-        	<artifactId>mapstruct-processor</artifactId>
-        	<version>${org.mapstruct.version}</version>
-        	<scope>provided</scope>
-        	<optional>true</optional>
-    	</dependency>
 	</dependencies>
 
 	<build>
@@ -91,6 +84,7 @@
                     	<path>
             				<groupId>org.projectlombok</groupId>
             				<artifactId>lombok</artifactId>
+            				<version>1.18.24</version>
         				</path>
         				<path>
             				<groupId>org.projectlombok</groupId>
@@ -98,6 +92,9 @@
             				<version>0.2.0</version>
         				</path>
                 	</annotationProcessorPaths>
+                	<compilerArgs>
+                		<arg>-Amapstruct.defaultComponentModel=spring</arg>
+                	</compilerArgs>
             	</configuration>
         	</plugin>
 		</plugins>
