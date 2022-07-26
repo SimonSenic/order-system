@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -52,7 +53,7 @@ public class UserController {
 	}
 	
 	@PostMapping("/customer")
-	public ResponseEntity<UserDTO> createCustomer(@RequestBody UserDTO body) {
+	public ResponseEntity<UserDTO> createCustomer(@RequestHeader(value="Authorization") String header, @RequestBody UserDTO body) {
 		if (userService.findByName(body.getName()).isPresent()) throw new IllegalStateException("Name is occupied");
 		else if(userService.findByEmail(body.getEmail()).isPresent()) throw new IllegalStateException("Email is occupied");
 		User user = new User(body.getName(), body.getEmail(), Role.CUSTOMER);
@@ -69,15 +70,13 @@ public class UserController {
 		user.setPassword(passwordEncoder.bCryptPasswordEncoder().encode(body.getPassword()));
 		user.setFullName(body.getFullName());
 		user.setAddress(body.getAddress());
-		System.out.println(user.getFullName());
 		userService.save(user);
 		UserDTO userDTO = userMapper.toDTO(user);
-		System.out.println(userDTO.getFullName());
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body(userDTO);
 	}
 	
 	@PostMapping("/admin")
-	public ResponseEntity<UserDTO> createAdmin(@RequestBody UserDTO body) {
+	public ResponseEntity<UserDTO> createAdmin(@RequestHeader(value="Authorization") String header, @RequestBody UserDTO body) {
 		if (userService.findByName(body.getName()).isPresent()) throw new IllegalStateException("Name is occupied");
 		else if(userService.findByEmail(body.getEmail()).isPresent()) throw new IllegalStateException("Email is occupied");
 		User user = new User(body.getName(), body.getEmail(), Role.ADMIN);

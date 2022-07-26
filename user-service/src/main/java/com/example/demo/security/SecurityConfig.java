@@ -11,18 +11,22 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import static org.springframework.http.HttpMethod.PATCH;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+	@Autowired
 	private AuthenticationManager authenticationManager;
 	
 	@Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable();
         http.authorizeRequests().antMatchers(GET, "/api/v1/users/**").permitAll();
-        http.authorizeRequests().antMatchers(POST, "/api/v1/users/**").permitAll();
+        http.authorizeRequests().antMatchers(POST, "/api/v1/users/**").hasAnyAuthority("ADMIN");
         http.authorizeRequests().antMatchers(PATCH, "/api/v1/users/**").permitAll();
         http.authorizeRequests().anyRequest().authenticated();
         http.addFilterBefore(new AuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class);
