@@ -16,6 +16,7 @@ import com.example.demo.dto.UserDTO;
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.model.Role;
 import com.example.demo.model.User;
+import com.example.demo.security.PasswordEncoder;
 import com.example.demo.service.UserService;
 
 import lombok.AllArgsConstructor;
@@ -26,7 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Slf4j
 public class UserController {
-	private final UserService userService;
+	private UserService userService;
+	private PasswordEncoder passwordEncoder;
 	private UserMapper userMapper;
 	
 	@GetMapping
@@ -44,7 +46,9 @@ public class UserController {
 	
 	@PostMapping("/login")
 	public ResponseEntity<UserDTO> login(@RequestBody UserDTO body){
-		return ResponseEntity.ok(body);
+		User user = userService.findByName(body.getName()).orElseThrow(() -> new IllegalArgumentException("User not found"));
+		UserDTO userDTO = userMapper.toDTO(user);
+		return ResponseEntity.ok(userDTO);
 	}
 	
 	@PostMapping("/customer")
@@ -62,11 +66,13 @@ public class UserController {
 		User user = userService.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
 		if (userService.findByName(body.getName()).isPresent()) throw new IllegalStateException("Name is occupied");
 		else if(userService.findByEmail(body.getEmail()).isPresent()) throw new IllegalStateException("Email is occupied");
-		user.setPassword(body.getPassword());
+		user.setPassword(passwordEncoder.bCryptPasswordEncoder().encode(body.getPassword()));
 		user.setFullName(body.getFullName());
 		user.setAddress(body.getAddress());
+		System.out.println(user.getFullName());
 		userService.save(user);
 		UserDTO userDTO = userMapper.toDTO(user);
+		System.out.println(userDTO.getFullName());
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body(userDTO);
 	}
 	
@@ -83,10 +89,10 @@ public class UserController {
 	@PatchMapping("/admin/{id}")
 	public ResponseEntity<UserDTO> updateAdmin(@PathVariable(value = "id") Long id, @RequestBody UserDTO body) {
 		User user = userService.findById(id).filter(temp -> temp.getRole().equals(Role.ADMIN))
-				.orElseThrow(() -> new IllegalArgumentException("Admin not found"));
+				.orElseThrow(() -> new IllegalArgumentException("Not an admin"));
 		if (userService.findByName(body.getName()).isPresent()) throw new IllegalStateException("Name is occupied");
 		else if(userService.findByEmail(body.getEmail()).isPresent()) throw new IllegalStateException("Email is occupied");
-		user.setPassword(body.getPassword());
+		user.setPassword(passwordEncoder.bCryptPasswordEncoder().encode(body.getPassword()));
 		userService.save(user);
 		UserDTO userDTO = userMapper.toDTO(user);
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body(userDTO);
