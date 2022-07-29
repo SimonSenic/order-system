@@ -42,6 +42,7 @@ public class UserController {
 	public ResponseEntity<UserDTO> getUser(@PathVariable(value = "id") Long id){
 		User user = userService.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
 		UserDTO userDTO = userMapper.toDTO(user);
+		System.out.println(user.toString());
 		return ResponseEntity.ok(userDTO);
 	}
 	

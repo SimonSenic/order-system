@@ -28,7 +28,7 @@ public class Order {
 	
 	@Column(name = "amount")
 	@NonNull
-	private int amount;
+	private Integer amount;
 	
 	@Column(name = "price")
 	private Double price;

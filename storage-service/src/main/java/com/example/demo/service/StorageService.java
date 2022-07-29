@@ -13,7 +13,7 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class StorageService {
-	StorageRepository storageRepository;
+	private StorageRepository storageRepository;
 	
 	public List<Product> findAll(){
 		return storageRepository.findAll();

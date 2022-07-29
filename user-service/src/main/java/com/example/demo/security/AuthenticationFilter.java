@@ -54,7 +54,7 @@ public class AuthenticationFilter extends AbstractAuthenticationProcessingFilter
 	    User user = (User) authResult.getPrincipal();
 	    Algorithm algorithm = Algorithm.HMAC256("secret".getBytes()); //!!
 	    String token = JWT.create().withSubject(user.getUsername())
-	    		.withExpiresAt(new Date(System.currentTimeMillis() +120000))
+	    		.withExpiresAt(new Date(System.currentTimeMillis() +3240000))
 	            .withIssuer(request.getRequestURL().toString())
 	            .withClaim("roles", user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
 	            .sign(algorithm);

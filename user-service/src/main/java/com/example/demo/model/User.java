@@ -43,8 +43,8 @@ public class User {
 	@Column(name = "address")
 	private String address;
 	
-	@Column(name = "role")
 	@Enumerated(EnumType.STRING)
+	@Column(name = "role")
 	@NonNull
 	private Role role;
 }
