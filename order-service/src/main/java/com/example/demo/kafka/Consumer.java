@@ -1,9 +1,16 @@
 package com.example.demo.kafka;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import com.example.demo.model.Product;
+import com.example.demo.dto.ProductDTO;
+import com.example.demo.model.Order;
+import com.example.demo.model.State;
+import com.example.demo.service.OrderService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -14,15 +21,31 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class Consumer {
 	@NonNull
+	private OrderService orderService;
+	@NonNull
 	private ObjectMapper objectMapper;
 	
-	private final String productTopic = "${product.topic.name}";
-	private final String userTopic = "${user.topic.name}";
+	private final String orderTopic = "${order.topic.name}";
+	private final String paymentTopic = "${payment.topic.name}";
 	
-	@KafkaListener(topics = { productTopic, userTopic })
-	public void consumeMessage(String message, String username) throws JsonProcessingException{
-		Product product = objectMapper.readValue(message, Product.class);
-		
-		System.out.println(message);
+	@KafkaListener(topics = orderTopic)
+	public void consumeOrder(String message) throws IOException, JsonProcessingException {
+		BufferedReader reader = new BufferedReader(new StringReader(message));
+		ProductDTO product = objectMapper.readValue(reader.readLine(), ProductDTO.class);
+		String username = reader.readLine();
+		Integer amount = Integer.valueOf(reader.readLine());
+		Order order = new Order(username, product.getName(), amount, product.getPrice()*amount, State.WAITING_FOR_PAYMENT);
+		orderService.save(order);
+	}
+	
+	@KafkaListener(topics = paymentTopic)
+	public void consumePayment(String message) throws IOException {
+		BufferedReader reader = new BufferedReader(new StringReader(message));
+		Long id = Long.valueOf(reader.readLine());
+		String username = reader.readLine();
+		Order order = orderService.findById(id).filter(temp -> temp.getUsername().equals(username) && temp.getState().equals(State.WAITING_FOR_PAYMENT))
+				.orElseThrow(() -> new IllegalArgumentException("Order not found"));
+		order.setState(State.SENT);
+		orderService.save(order);
 	}
 }

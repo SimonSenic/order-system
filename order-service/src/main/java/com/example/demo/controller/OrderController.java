@@ -1,16 +1,19 @@
 package com.example.demo.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.demo.dto.OrderDTO;
 import com.example.demo.mapper.OrderMapper;
 import com.example.demo.model.Order;
@@ -26,25 +29,31 @@ public class OrderController {
 	private OrderMapper orderMapper;
 	
 	@GetMapping
-	public ResponseEntity<List<OrderDTO>> getOrders(){
+	public ResponseEntity<List<OrderDTO>> getOrders(@RequestHeader(value="Authorization") String header){
 		List<OrderDTO> list = orderMapper.toDTOs(orderService.findAll()); 
 		return ResponseEntity.ok(list);
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<OrderDTO> getOrder(@PathVariable(value = "id") Long id){
+	public ResponseEntity<OrderDTO> getOrder(@RequestHeader(value="Authorization") String header, @PathVariable(value = "id") Long id){
 		Order order = orderService.findById(id).orElseThrow(() -> new IllegalArgumentException("Order not found"));
-		OrderDTO orderDTO = orderMapper.toDTO(order);
+		OrderDTO orderDTO = orderMapper.toDTO(order); 
 		return ResponseEntity.ok(orderDTO);
 	}
 	
-	@PostMapping
-	public ResponseEntity<OrderDTO> order(@RequestHeader(value="Authorization") String header){
-		System.out.println("ide");
-		//updateProduct - ziskam produkt, getnem Usera, a jak bude payment accepted mozem dat order a hotovo
-		//Order order = new Order();
-		//orderRepository.save(order);
-		//OrderDTO orderDTO = orderMapper.toDTO(order);
-		return ResponseEntity.status(HttpStatus.CREATED).body(null);
+	@GetMapping("/my")
+	public ResponseEntity<List<OrderDTO>> getUserOrders(@RequestHeader(value="Authorization") String header){
+		List<Order> list = orderService.findAll().stream().filter(temp -> temp.getUsername().equals(getUsername(header)))
+				.collect(Collectors.toList());
+		List<OrderDTO> listDTO = orderMapper.toDTOs(list); 
+		return ResponseEntity.ok(listDTO);
+	}
+	
+	private String getUsername(String header){
+        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes()); //!!
+        String token = header.substring(7);
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decodedJWT = verifier.verify(token);
+        return decodedJWT.getSubject();
 	}
 }

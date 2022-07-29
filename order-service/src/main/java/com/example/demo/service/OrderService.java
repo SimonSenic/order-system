@@ -23,12 +23,7 @@ public class OrderService {
 		return orderRepository.findById(id);
 	}
 	
-	public Order create(Order order) {
-		
-		return orderRepository.save(order);
-	}
-	
-	public Order update(Order order) {
+	public Order save(Order order) {
 		return orderRepository.save(order);
 	}
 }

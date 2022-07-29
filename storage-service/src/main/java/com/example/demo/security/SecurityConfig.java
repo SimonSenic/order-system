@@ -20,7 +20,7 @@ public class SecurityConfig {
         http.csrf().disable();
         http.authorizeRequests().antMatchers(GET, "/api/v1/storage/**").permitAll();
         http.authorizeRequests().antMatchers(POST, "/api/v1/storage/**").hasAnyAuthority("ADMIN");
-        http.authorizeRequests().antMatchers(PATCH, "/api/v1/storage/**").permitAll();
+        http.authorizeRequests().antMatchers(PATCH, "/api/v1/storage/**").hasAnyAuthority("CUSTOMER");
         http.authorizeRequests().anyRequest().authenticated();
         http.addFilterBefore(new AuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();

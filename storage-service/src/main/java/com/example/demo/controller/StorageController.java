@@ -58,15 +58,16 @@ public class StorageController {
 	}
 	
 	@PatchMapping("/{id}")
-	public ResponseEntity<ProductDTO> updateProduct(@RequestHeader(value="Authorization") String header, @PathVariable(value = "id") Long id, @RequestParam(required=false) Integer amount){
+	public ResponseEntity<ProductDTO> order(@RequestHeader(value="Authorization") String header, 
+			@PathVariable(value = "id") Long id, @RequestParam(required=false) Integer amount){
 		Product product = storageService.findById(id).orElseThrow(() -> new IllegalArgumentException("Product not found"));
 		if(amount == null) amount = 1;
 		else if(amount > product.getAvailability() || amount < 1) throw new IllegalStateException("Invalid amount");
 		product.setAvailability(product.getAvailability() - amount);
 		storageService.save(product);
-		try{ producer.sendMessage(product, getUsername(header)); }
-		catch(JsonProcessingException e) { e.printStackTrace(); }
 		ProductDTO productDTO = productMapper.toDTO(product);
+		try{ producer.sendMessage(productDTO, getUsername(header), amount); }
+		catch(JsonProcessingException e) { e.printStackTrace(); }
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body(productDTO);
 	}
 	
@@ -76,6 +77,5 @@ public class StorageController {
 	        JWTVerifier verifier = JWT.require(algorithm).build();
 	        DecodedJWT decodedJWT = verifier.verify(token);
 	        return decodedJWT.getSubject();
-	    }
-	
+	 }
 }

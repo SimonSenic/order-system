@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-import com.example.demo.model.Product;
+import com.example.demo.dto.ProductDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -20,15 +20,14 @@ public class Producer {
 	@NonNull
 	private ObjectMapper objectMapper;
 	
-	@Value("${product.topic.name}")
-	private String productTopic;
+	@Value("${order.topic.name}")
+	private String orderTopic;
 	
-	@Value("${user.topic.name}")
-	private String userTopic;
-	
-	public void sendMessage(Product product, String username) throws JsonProcessingException{
-		//System.out.println("message sent: " +objectMapper.writeValueAsString(product));
-		kafkaTemplate.send(productTopic, objectMapper.writeValueAsString(product));
-		kafkaTemplate.send(userTopic, objectMapper.writeValueAsString(username));
+	public void sendMessage(ProductDTO product, String username, Integer amount) throws JsonProcessingException{
+		StringBuilder sb = new StringBuilder();
+		sb.append(objectMapper.writeValueAsString(product) +"\n");
+		sb.append(username +"\n");
+		sb.append(amount);
+		kafkaTemplate.send(orderTopic, sb.toString());
 	}
 }
