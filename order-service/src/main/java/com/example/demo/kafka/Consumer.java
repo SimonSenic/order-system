@@ -29,7 +29,7 @@ public class Consumer {
 	private final String paymentTopic = "${payment.topic.name}";
 	
 	@KafkaListener(topics = orderTopic)
-	public void consumeOrder(String message) throws IOException, JsonProcessingException {
+	public void consumeOrder(String message) throws JsonProcessingException, IOException {
 		BufferedReader reader = new BufferedReader(new StringReader(message));
 		ProductDTO product = objectMapper.readValue(reader.readLine(), ProductDTO.class);
 		String username = reader.readLine();

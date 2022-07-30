@@ -61,12 +61,6 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
-			<exclusions>
-        		<exclusion>
-            		<groupId>com.vaadin.external.google</groupId>
-            		<artifactId>android-json</artifactId>
-        		</exclusion>
-    		</exclusions>
 		</dependency>
 		<dependency>
       		<groupId>com.auth0</groupId>
@@ -77,6 +71,31 @@
       		<groupId>org.json</groupId>
       		<artifactId>json</artifactId>
       		<version>20220320</version>
+    	</dependency>
+    	<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+                
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+    	<dependency>
+        	<groupId>org.apache.kafka</groupId>
+        	<artifactId>kafka-log4j-appender</artifactId>
+        	<exclusions>
+            	<exclusion>
+                	<groupId>org.slf4j</groupId>
+                	<artifactId>slf4j-log4j12</artifactId>
+            	</exclusion>
+        	</exclusions>
     	</dependency>
 	</dependencies>
 

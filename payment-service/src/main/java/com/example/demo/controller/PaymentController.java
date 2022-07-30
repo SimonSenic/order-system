@@ -21,18 +21,25 @@ import com.example.demo.model.Data;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/v1/payment")
 @AllArgsConstructor
+@Slf4j
 public class PaymentController {
 	Producer producer;
 	
 	@PostMapping("/{id}")
 	public ResponseEntity<Map<String, String>> pay(@RequestHeader(value="Authorization") String header, 
 			@PathVariable(value = "id") Long id, @RequestBody Data body) {
-		try{ producer.sendMessage(id, getUsername(header)); }
-		catch(JsonProcessingException e) { e.printStackTrace(); }
+		try{ 
+			Thread.sleep(5000);
+			producer.sendMessage(id, getUsername(header)); 
+		}catch(JsonProcessingException | InterruptedException e) { 
+			log.error(e.getMessage());
+		}
+		log.info("payment successful");
 		Map<String, String> response = new HashMap<>();
 		response.put("status", "payment successful");
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);

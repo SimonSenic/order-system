@@ -33,13 +33,13 @@ public class UserController {
 	private UserMapper userMapper;
 	
 	@GetMapping
-	public ResponseEntity<List<UserDTO>> getUsers(){
+	public ResponseEntity<List<UserDTO>> getUsers(@RequestHeader(value="Authorization") String header){
 		List<UserDTO> list = userMapper.toDTOs(userService.findAll()); 
 		return ResponseEntity.ok(list);
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<UserDTO> getUser(@PathVariable(value = "id") Long id){
+	public ResponseEntity<UserDTO> getUser(@RequestHeader(value="Authorization") String header, @PathVariable(value = "id") Long id){
 		User user = userService.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
 		UserDTO userDTO = userMapper.toDTO(user);
 		System.out.println(user.toString());
@@ -59,6 +59,7 @@ public class UserController {
 		else if(userService.findByEmail(body.getEmail()).isPresent()) throw new IllegalStateException("Email is occupied");
 		User user = new User(body.getName(), body.getEmail(), Role.CUSTOMER);
 		userService.save(user);
+		log.info("new customer created (profile update required -> localhost:8080/api/v1/users/customer/{id})");
 		UserDTO userDTO = userMapper.toDTO(user);
 		return ResponseEntity.status(HttpStatus.CREATED).body(userDTO);
 	}
@@ -72,6 +73,7 @@ public class UserController {
 		user.setFullName(body.getFullName());
 		user.setAddress(body.getAddress());
 		userService.save(user);
+		log.info("profile updated (login enabled)");
 		UserDTO userDTO = userMapper.toDTO(user);
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body(userDTO);
 	}
@@ -82,6 +84,7 @@ public class UserController {
 		else if(userService.findByEmail(body.getEmail()).isPresent()) throw new IllegalStateException("Email is occupied");
 		User user = new User(body.getName(), body.getEmail(), Role.ADMIN);
 		userService.save(user);
+		log.info("new admin created (password update required -> localhost:8080/api/v1/users/admin/{id})");
 		UserDTO userDTO = userMapper.toDTO(user);
 		return ResponseEntity.status(HttpStatus.CREATED).body(userDTO);
 	}
@@ -94,8 +97,8 @@ public class UserController {
 		else if(userService.findByEmail(body.getEmail()).isPresent()) throw new IllegalStateException("Email is occupied");
 		user.setPassword(passwordEncoder.bCryptPasswordEncoder().encode(body.getPassword()));
 		userService.save(user);
+		log.info("password updated (login enabled)");
 		UserDTO userDTO = userMapper.toDTO(user);
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body(userDTO);
 	}
-	
 }

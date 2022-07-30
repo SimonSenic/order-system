@@ -26,10 +26,12 @@ import com.example.demo.service.StorageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/v1/storage")
 @AllArgsConstructor
+@Slf4j
 public class StorageController {
 	private StorageService storageService;
 	private Producer producer;
@@ -53,6 +55,7 @@ public class StorageController {
 		if (storageService.findByName(body.getName()).isPresent()) throw new IllegalStateException("Product already exists");
 		Product product = new Product(body.getName(), body.getPrice());
 		storageService.save(product);
+		log.info("new product added");
 		ProductDTO productDTO = productMapper.toDTO(product);
 		return ResponseEntity.status(HttpStatus.CREATED).body(productDTO);
 	}
@@ -65,6 +68,7 @@ public class StorageController {
 		else if(amount > product.getAvailability() || amount < 1) throw new IllegalStateException("Invalid amount");
 		product.setAvailability(product.getAvailability() - amount);
 		storageService.save(product);
+		log.info("product ordered (waiting for payment -> localhost:8083/api/v1/payment/{id})");
 		ProductDTO productDTO = productMapper.toDTO(product);
 		try{ producer.sendMessage(productDTO, getUsername(header), amount); }
 		catch(JsonProcessingException e) { e.printStackTrace(); }
