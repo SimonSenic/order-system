@@ -50,7 +50,7 @@ public class OrderController {
 	}
 	
 	private String getUsername(String header){
-        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes()); //!!
+        Algorithm algorithm = Algorithm.HMAC256("${secret.key}".getBytes());
         String token = header.substring(7);
         JWTVerifier verifier = JWT.require(algorithm).build();
         DecodedJWT decodedJWT = verifier.verify(token);

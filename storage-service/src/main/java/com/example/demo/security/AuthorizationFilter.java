@@ -31,7 +31,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 		String header = request.getHeader("Authorization");
         if(header != null && header.startsWith("Bearer ")){
             try{
-                Algorithm algorithm = Algorithm.HMAC256("secret".getBytes()); //!!
+                Algorithm algorithm = Algorithm.HMAC256("${secret.key}".getBytes());
                 String token = header.substring(7);
                 JWTVerifier verifier = JWT.require(algorithm).build();
                 DecodedJWT decodedJWT = verifier.verify(token);

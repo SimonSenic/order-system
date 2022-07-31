@@ -69,6 +69,7 @@ public class UserController {
 		User user = userService.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
 		if (userService.findByName(body.getName()).isPresent()) throw new IllegalStateException("Name is occupied");
 		else if(userService.findByEmail(body.getEmail()).isPresent()) throw new IllegalStateException("Email is occupied");
+		else if(user.getPassword()!=null || user.getFullName()!=null || user.getAddress()!=null) throw new IllegalStateException("Profile already updated");
 		user.setPassword(passwordEncoder.bCryptPasswordEncoder().encode(body.getPassword()));
 		user.setFullName(body.getFullName());
 		user.setAddress(body.getAddress());
@@ -95,6 +96,7 @@ public class UserController {
 				.orElseThrow(() -> new IllegalArgumentException("Not an admin"));
 		if (userService.findByName(body.getName()).isPresent()) throw new IllegalStateException("Name is occupied");
 		else if(userService.findByEmail(body.getEmail()).isPresent()) throw new IllegalStateException("Email is occupied");
+		else if(user.getPassword()!=null) throw new IllegalStateException("Password already updated");
 		user.setPassword(passwordEncoder.bCryptPasswordEncoder().encode(body.getPassword()));
 		userService.save(user);
 		log.info("password updated (login enabled)");
