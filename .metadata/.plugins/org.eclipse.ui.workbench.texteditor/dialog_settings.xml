@@ -8,6 +8,8 @@
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="vaadin"/>
+			<item value="json"/>
 			<item value="filters"/>
 		</list>
 		<list key="replacehistory">

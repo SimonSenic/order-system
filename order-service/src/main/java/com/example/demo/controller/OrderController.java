@@ -10,10 +10,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.demo.dto.OrderDTO;
 import com.example.demo.mapper.OrderMapper;
 import com.example.demo.model.Order;
@@ -43,17 +39,9 @@ public class OrderController {
 	
 	@GetMapping("/my")
 	public ResponseEntity<List<OrderDTO>> getUserOrders(@RequestHeader(value="Authorization") String header){
-		List<Order> list = orderService.findAll().stream().filter(temp -> temp.getUsername().equals(getUsername(header)))
+		List<Order> list = orderService.findAll().stream().filter(temp -> temp.getUsername().equals(orderService.getUsername(header)))
 				.collect(Collectors.toList());
 		List<OrderDTO> listDTO = orderMapper.toDTOs(list); 
 		return ResponseEntity.ok(listDTO);
-	}
-	
-	private String getUsername(String header){
-        Algorithm algorithm = Algorithm.HMAC256("${secret.key}".getBytes());
-        String token = header.substring(7);
-        JWTVerifier verifier = JWT.require(algorithm).build();
-        DecodedJWT decodedJWT = verifier.verify(token);
-        return decodedJWT.getSubject();
 	}
 }

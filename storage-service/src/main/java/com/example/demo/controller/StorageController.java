@@ -14,10 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.demo.dto.ProductDTO;
 import com.example.demo.kafka.Producer;
 import com.example.demo.mapper.ProductMapper;
@@ -70,16 +66,8 @@ public class StorageController {
 		storageService.save(product);
 		log.info("product ordered (waiting for payment -> localhost:8083/api/v1/payment/{id})");
 		ProductDTO productDTO = productMapper.toDTO(product);
-		try{ producer.sendMessage(productDTO, getUsername(header), amount); }
+		try{ producer.sendMessage(productDTO, storageService.getUsername(header), amount); }
 		catch(JsonProcessingException e) { e.printStackTrace(); }
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body(productDTO);
 	}
-	
-	 private String getUsername(String header){
-	        Algorithm algorithm = Algorithm.HMAC256("${secret.key}".getBytes()); 
-	        String token = header.substring(7);
-	        JWTVerifier verifier = JWT.require(algorithm).build();
-	        DecodedJWT decodedJWT = verifier.verify(token);
-	        return decodedJWT.getSubject();
-	 }
 }
